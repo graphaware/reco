@@ -1,7 +1,7 @@
 GraphAware Recommendation Engine
 ================================
 
-[![Build Status](https://travis-ci.org/graphaware/reco.png)](https://travis-ci.org/graphaware/reco) | <a href="http://graphaware.com/site/reco/latest/apidocs/" target="_blank">Javadoc</a> | Latest Release: 1.0
+[![Build Status](https://travis-ci.org/graphaware/reco.svg)](https://travis-ci.org/graphaware/reco) | <a href="http://graphaware.com/site/reco/latest/apidocs/" target="_blank">Javadoc</a> | Latest Release: 1.0
 
 GraphAware Recommendation Engine is a skeleton for building high-performance complex recommendation engines. It was originally
 written for Neo4j only but later split into a separate repository by popular demand. You can use this to implement a recommendation
