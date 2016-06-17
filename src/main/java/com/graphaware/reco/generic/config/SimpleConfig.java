@@ -16,7 +16,7 @@
 
 package com.graphaware.reco.generic.config;
 
-import static org.springframework.util.Assert.isTrue;
+import static com.graphaware.reco.generic.util.Assert.*;
 
 /**
  * The simplest implementation of {@link Config}. To be used when the recommendation engine is configured entirely

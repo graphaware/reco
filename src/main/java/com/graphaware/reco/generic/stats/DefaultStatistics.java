@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.springframework.util.Assert.hasLength;
+import static com.graphaware.reco.generic.util.Assert.hasLength;
 
 /**
  * Default production implementation of {@link com.graphaware.reco.generic.stats.Statistics}.

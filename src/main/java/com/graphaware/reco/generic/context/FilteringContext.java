@@ -18,6 +18,7 @@ package com.graphaware.reco.generic.context;
 
 import com.graphaware.reco.generic.config.Config;
 import com.graphaware.reco.generic.filter.Filter;
+import com.graphaware.reco.generic.util.Assert;
 
 import java.util.Collections;
 import java.util.List;
@@ -25,8 +26,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.graphaware.reco.generic.stats.Statistics.*;
-import static org.springframework.util.Assert.hasLength;
-import static org.springframework.util.Assert.notNull;
+import static com.graphaware.reco.generic.util.Assert.*;
 
 /**
  * A {@link com.graphaware.reco.generic.context.Context} that accepts a list of {@link com.graphaware.reco.generic.filter.Filter}s

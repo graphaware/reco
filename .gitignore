@@ -10,4 +10,3 @@ target/
 *.db
 .DS_Store
 .classpath
-neo4j-home/

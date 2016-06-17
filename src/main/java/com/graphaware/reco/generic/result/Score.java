@@ -23,8 +23,8 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static org.springframework.util.Assert.hasLength;
-import static org.springframework.util.Assert.notNull;
+import static com.graphaware.reco.generic.util.Assert.hasLength;
+import static com.graphaware.reco.generic.util.Assert.notNull;
 
 /**
  * A recommendation score that is composed of multiple named partial scores ({@link PartialScore}s).

@@ -18,12 +18,11 @@ package com.graphaware.reco.generic.web;
 
 import com.graphaware.reco.generic.config.KeyValueConfig;
 import com.graphaware.reco.generic.config.MapBasedConfig;
-import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.springframework.util.Assert.hasLength;
+import static com.graphaware.reco.generic.util.Assert.hasLength;
 
 /**
  * {@link ConfigParser} producing {@link KeyValueConfig}. By default, it produces {@link MapBasedConfig} with {@link String}
@@ -68,7 +67,7 @@ public class KeyValueConfigParser implements ConfigParser<KeyValueConfig> {
     protected static Map<String, Object> produceConfigMap(String config, String separator) {
         Map<String, Object> result = new HashMap<>();
 
-        if (StringUtils.isEmpty(config)) {
+        if (config == null || config.length() <= 0) {
             return result;
         }
 

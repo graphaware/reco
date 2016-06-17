@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static org.springframework.util.Assert.hasLength;
+import static com.graphaware.reco.generic.util.Assert.hasLength;
 
 
 /**

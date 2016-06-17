@@ -22,12 +22,8 @@ import com.graphaware.reco.generic.context.SimpleContext;
 import com.graphaware.reco.generic.post.PostProcessor;
 import com.graphaware.reco.generic.result.PartialScore;
 import com.graphaware.reco.generic.result.Recommendations;
-import com.graphaware.test.integration.DatabaseIntegrationTest;
-import com.graphaware.test.integration.EmbeddedDatabaseIntegrationTest;
+import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.graphdb.*;
-import org.neo4j.helpers.collection.Iterables;
-import org.neo4j.helpers.collection.Iterators;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -35,184 +31,158 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
-import static org.neo4j.helpers.collection.Iterators.*;
 
 /**
  * Test for {@link com.graphaware.reco.generic.engine.DelegatingRecommendationEngine}, especially the optimisation
  * part that takes place before post processing.
  */
-public class DelegatingRecommendationEngineTest extends EmbeddedDatabaseIntegrationTest {
+public class DelegatingRecommendationEngineTest {
 
-    private DelegatingRecommendationEngine<Node, Node> engine;
-    private Node mockNode;
-    private PostProcessor<Node, Node> mockPP1, mockPP2;
-    private Context<Node, Node> testContext;
+    private DelegatingRecommendationEngine<String, String> engine;
+    private String testInput;
+    private PostProcessor<String, String> mockPP1, mockPP2;
+    private Context<String, String> testContext;
 
-    @Override
-    protected void populateDatabase(GraphDatabaseService database) {
-        database.execute(
-                "CREATE " +
-                        "(m:Person {name:'Michal', n:100})," +
-                        "(d:Person {name:'Daniela', n:80})," +
-                        "(v:Person {name:'Vince', n:60})," +
-                        "(a:Person {name:'Adam', n:40})," +
-                        "(l:Person {name:'Luanne', n:20})," +
-                        "(b:Person {name:'Christophe', n:0})," +
-                        "(j:Person {name:'Jim', n:-20})");
+    private Map<String, Integer> peopleWithPoints;
+
+    @Before
+    public void populateDatabase() {
+        peopleWithPoints = new HashMap<>();
+
+        peopleWithPoints.put("Michal", 100);
+        peopleWithPoints.put("Daniela", 80);
+        peopleWithPoints.put("Vince", 60);
+        peopleWithPoints.put("Adam", 40);
+        peopleWithPoints.put("Luanne", 20);
+        peopleWithPoints.put("Christophe", 0);
+        peopleWithPoints.put("Jim", -20);
+
     }
 
+    @Before
     public void setUp() throws Exception {
-        super.setUp();
-
         engine = new DelegatingRecommendationEngine<>();
         engine.addEngine(new TestEngine());
 
-        mockNode = mock(Node.class);
-        when(mockNode.getGraphDatabase()).thenReturn(getDatabase());
+        testInput = "TestInput";
 
         mockPP1 = mock(PostProcessor.class);
         mockPP2 = mock(PostProcessor.class);
 
-        testContext = new SimpleContext<>(mockNode, new SimpleConfig(4));
+        testContext = new SimpleContext<>(testInput, new SimpleConfig(4));
     }
 
     @Test
     public void verifyCorrectOptimisation1() {
-        when(mockPP1.maxPositiveScore(mockNode, testContext)).thenReturn(Float.POSITIVE_INFINITY);
-        when(mockPP2.maxPositiveScore(mockNode, testContext)).thenReturn(Float.POSITIVE_INFINITY);
-        when(mockPP1.maxNegativeScore(mockNode, testContext)).thenReturn(Float.NEGATIVE_INFINITY);
-        when(mockPP2.maxNegativeScore(mockNode, testContext)).thenReturn(Float.NEGATIVE_INFINITY);
+        when(mockPP1.maxPositiveScore(testInput, testContext)).thenReturn(Float.POSITIVE_INFINITY);
+        when(mockPP2.maxPositiveScore(testInput, testContext)).thenReturn(Float.POSITIVE_INFINITY);
+        when(mockPP1.maxNegativeScore(testInput, testContext)).thenReturn(Float.NEGATIVE_INFINITY);
+        when(mockPP2.maxNegativeScore(testInput, testContext)).thenReturn(Float.NEGATIVE_INFINITY);
 
         engine.addPostProcessors(Arrays.asList(mockPP1, mockPP2));
 
-        Recommendations<Node> result;
-        try (Transaction tx = getDatabase().beginTx()) {
-            result = engine.recommend(mockNode, testContext);
-            tx.success();
-        }
+        Recommendations<String> result = engine.recommend(testInput, testContext);
 
         assertEquals(7, result.size());
-        verify(mockPP1).postProcess(result, mockNode, testContext);
-        verify(mockPP2).postProcess(result, mockNode, testContext);
+        verify(mockPP1).postProcess(result, testInput, testContext);
+        verify(mockPP2).postProcess(result, testInput, testContext);
     }
 
     @Test
     public void verifyCorrectOptimisation2() {
-        when(mockPP1.maxPositiveScore(mockNode, testContext)).thenReturn(0f);
-        when(mockPP2.maxPositiveScore(mockNode, testContext)).thenReturn(Float.POSITIVE_INFINITY);
-        when(mockPP1.maxNegativeScore(mockNode, testContext)).thenReturn(0f);
-        when(mockPP2.maxNegativeScore(mockNode, testContext)).thenReturn(Float.NEGATIVE_INFINITY);
+        when(mockPP1.maxPositiveScore(testInput, testContext)).thenReturn(0f);
+        when(mockPP2.maxPositiveScore(testInput, testContext)).thenReturn(Float.POSITIVE_INFINITY);
+        when(mockPP1.maxNegativeScore(testInput, testContext)).thenReturn(0f);
+        when(mockPP2.maxNegativeScore(testInput, testContext)).thenReturn(Float.NEGATIVE_INFINITY);
 
         engine.addPostProcessors(Arrays.asList(mockPP1, mockPP2));
 
-        Recommendations<Node> result;
-        try (Transaction tx = getDatabase().beginTx()) {
-            result = engine.recommend(mockNode, testContext);
-            tx.success();
-        }
+        Recommendations<String> result = engine.recommend(testInput, testContext);
 
         assertEquals(7, result.size());
-        verify(mockPP1).postProcess(result, mockNode, testContext);
-        verify(mockPP2).postProcess(result, mockNode, testContext);
+        verify(mockPP1).postProcess(result, testInput, testContext);
+        verify(mockPP2).postProcess(result, testInput, testContext);
     }
 
     @Test
     public void verifyCorrectOptimisation3() {
-        when(mockPP1.maxPositiveScore(mockNode, testContext)).thenReturn(0f);
-        when(mockPP2.maxPositiveScore(mockNode, testContext)).thenReturn(0f);
-        when(mockPP1.maxNegativeScore(mockNode, testContext)).thenReturn(0f);
-        when(mockPP2.maxNegativeScore(mockNode, testContext)).thenReturn(0f);
+        when(mockPP1.maxPositiveScore(testInput, testContext)).thenReturn(0f);
+        when(mockPP2.maxPositiveScore(testInput, testContext)).thenReturn(0f);
+        when(mockPP1.maxNegativeScore(testInput, testContext)).thenReturn(0f);
+        when(mockPP2.maxNegativeScore(testInput, testContext)).thenReturn(0f);
 
         engine.addPostProcessors(Arrays.asList(mockPP1, mockPP2));
 
-        Recommendations<Node> result;
-        try (Transaction tx = getDatabase().beginTx()) {
-            result = engine.recommend(mockNode, testContext);
-            tx.success();
-        }
+        Recommendations<String> result = engine.recommend(testInput, testContext);
 
         assertEquals(4, result.size());
-        verify(mockPP1).postProcess(result, mockNode, testContext);
-        verify(mockPP2).postProcess(result, mockNode, testContext);
+        verify(mockPP1).postProcess(result, testInput, testContext);
+        verify(mockPP2).postProcess(result, testInput, testContext);
     }
 
     @Test
     public void verifyCorrectOptimisation4() {
-        when(mockPP1.maxPositiveScore(mockNode, testContext)).thenReturn(5f);
-        when(mockPP2.maxPositiveScore(mockNode, testContext)).thenReturn(5f);
-        when(mockPP1.maxNegativeScore(mockNode, testContext)).thenReturn(-5f);
-        when(mockPP2.maxNegativeScore(mockNode, testContext)).thenReturn(-5f);
+        when(mockPP1.maxPositiveScore(testInput, testContext)).thenReturn(5f);
+        when(mockPP2.maxPositiveScore(testInput, testContext)).thenReturn(5f);
+        when(mockPP1.maxNegativeScore(testInput, testContext)).thenReturn(-5f);
+        when(mockPP2.maxNegativeScore(testInput, testContext)).thenReturn(-5f);
 
         engine.addPostProcessors(Arrays.asList(mockPP1, mockPP2));
 
-        Recommendations<Node> result;
-        try (Transaction tx = getDatabase().beginTx()) {
-            result = engine.recommend(mockNode, testContext);
-            tx.success();
-        }
+        Recommendations<String> result = engine.recommend(testInput, testContext);
 
         assertEquals(5, result.size());
-        verify(mockPP1).postProcess(result, mockNode, testContext);
-        verify(mockPP2).postProcess(result, mockNode, testContext);
+        verify(mockPP1).postProcess(result, testInput, testContext);
+        verify(mockPP2).postProcess(result, testInput, testContext);
     }
 
     @Test
     public void verifyCorrectOptimisation5() {
-        when(mockPP1.maxPositiveScore(mockNode, testContext)).thenReturn(4f);
-        when(mockPP2.maxPositiveScore(mockNode, testContext)).thenReturn(5f);
-        when(mockPP1.maxNegativeScore(mockNode, testContext)).thenReturn(-5f);
-        when(mockPP2.maxNegativeScore(mockNode, testContext)).thenReturn(-5f);
+        when(mockPP1.maxPositiveScore(testInput, testContext)).thenReturn(4f);
+        when(mockPP2.maxPositiveScore(testInput, testContext)).thenReturn(5f);
+        when(mockPP1.maxNegativeScore(testInput, testContext)).thenReturn(-5f);
+        when(mockPP2.maxNegativeScore(testInput, testContext)).thenReturn(-5f);
 
         engine.addPostProcessors(Arrays.asList(mockPP1, mockPP2));
 
-        Recommendations<Node> result;
-        try (Transaction tx = getDatabase().beginTx()) {
-            result = engine.recommend(mockNode, testContext);
-            tx.success();
-        }
+        Recommendations<String> result = engine.recommend(testInput, testContext);
 
         assertEquals(4, result.size());
-        verify(mockPP1).postProcess(result, mockNode, testContext);
-        verify(mockPP2).postProcess(result, mockNode, testContext);
+        verify(mockPP1).postProcess(result, testInput, testContext);
+        verify(mockPP2).postProcess(result, testInput, testContext);
     }
 
     @Test(expected = IllegalStateException.class)
     public void verifyIncorrectParams1() {
-        when(mockPP1.maxPositiveScore(mockNode, testContext)).thenReturn(-1f);
-        when(mockPP2.maxPositiveScore(mockNode, testContext)).thenReturn(0f);
-        when(mockPP1.maxNegativeScore(mockNode, testContext)).thenReturn(0f);
-        when(mockPP2.maxNegativeScore(mockNode, testContext)).thenReturn(0f);
+        when(mockPP1.maxPositiveScore(testInput, testContext)).thenReturn(-1f);
+        when(mockPP2.maxPositiveScore(testInput, testContext)).thenReturn(0f);
+        when(mockPP1.maxNegativeScore(testInput, testContext)).thenReturn(0f);
+        when(mockPP2.maxNegativeScore(testInput, testContext)).thenReturn(0f);
 
         engine.addPostProcessors(Arrays.asList(mockPP1, mockPP2));
 
-        try (Transaction tx = getDatabase().beginTx()) {
-            engine.recommend(mockNode, testContext);
-            tx.success();
-        }
+        engine.recommend(testInput, testContext);
     }
 
     @Test(expected = IllegalStateException.class)
     public void verifyIncorrectParams2() {
-        when(mockPP1.maxPositiveScore(mockNode, testContext)).thenReturn(0f);
-        when(mockPP2.maxPositiveScore(mockNode, testContext)).thenReturn(0f);
-        when(mockPP1.maxNegativeScore(mockNode, testContext)).thenReturn(1f);
-        when(mockPP2.maxNegativeScore(mockNode, testContext)).thenReturn(0f);
+        when(mockPP1.maxPositiveScore(testInput, testContext)).thenReturn(0f);
+        when(mockPP2.maxPositiveScore(testInput, testContext)).thenReturn(0f);
+        when(mockPP1.maxNegativeScore(testInput, testContext)).thenReturn(1f);
+        when(mockPP2.maxNegativeScore(testInput, testContext)).thenReturn(0f);
 
         engine.addPostProcessors(Arrays.asList(mockPP1, mockPP2));
 
-        try (Transaction tx = getDatabase().beginTx()) {
-            engine.recommend(mockNode, testContext);
-            tx.success();
-        }
+        engine.recommend(testInput, testContext);
     }
 
-    private class TestEngine extends SingleScoreRecommendationEngine<Node, Node> {
+    private class TestEngine extends SingleScoreRecommendationEngine<String, String> {
 
         @Override
-        protected Map<Node, PartialScore> doRecommendSingle(Node input, Context<Node, Node> context) {
-            Map<Node, PartialScore> result = new HashMap<>();
-            for (Node node : asResourceIterable(input.getGraphDatabase().findNodes(Label.label("Person")))) {
-                result.put(node, new PartialScore(Float.valueOf(node.getProperty("n").toString())));
+        protected Map<String, PartialScore> doRecommendSingle(String input, Context<String, String> context) {
+            Map<String, PartialScore> result = new HashMap<>();
+            for (String s : peopleWithPoints.keySet()) {
+                result.put(s, new PartialScore(Float.valueOf(peopleWithPoints.get(s))));
             }
             return result;
         }

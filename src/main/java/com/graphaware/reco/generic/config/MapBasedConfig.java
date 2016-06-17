@@ -19,7 +19,7 @@ package com.graphaware.reco.generic.config;
 import java.util.Collections;
 import java.util.Map;
 
-import static org.springframework.util.Assert.notNull;
+import static com.graphaware.reco.generic.util.Assert.*;
 
 /**
  * {@link Map}-based implementation of {@link KeyValueConfig}. After construction, this class is read-only, this thread-safe.

@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.springframework.util.Assert.notNull;
+import static com.graphaware.reco.generic.util.Assert.*;
 
 /**
  * One of the potentially many reasons a recommendation has been discovered. Encapsulates the raw (pre-transformation)

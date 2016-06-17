@@ -16,12 +16,10 @@
 
 package com.graphaware.reco.generic.result;
 
-import com.graphaware.common.uuid.EaioUuidGenerator;
-import com.graphaware.common.uuid.UuidGenerator;
-
 import java.util.Map;
+import java.util.UUID;
 
-import static org.springframework.util.Assert.notNull;
+import static com.graphaware.reco.generic.util.Assert.notNull;
 
 /**
  * Encapsulates a recommended item together with its UUID and {@link com.graphaware.reco.generic.result.Score}.
@@ -35,8 +33,6 @@ import static org.springframework.util.Assert.notNull;
  */
 public class Recommendation<OUT> implements Comparable<Recommendation<OUT>> {
 
-    private static final UuidGenerator uuidGenerator = new EaioUuidGenerator();
-
     private final String uuid;
     private final OUT item;
     private final Score score;
@@ -49,7 +45,7 @@ public class Recommendation<OUT> implements Comparable<Recommendation<OUT>> {
     public Recommendation(OUT item) {
         notNull(item);
 
-        this.uuid = uuidGenerator.generateUuid();
+        this.uuid = UUID.randomUUID().toString();
         this.item = item;
         this.score = new Score();
     }

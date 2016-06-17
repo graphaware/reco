@@ -27,8 +27,8 @@ import com.graphaware.reco.generic.result.Recommendations;
 
 import java.util.*;
 
+import static com.graphaware.reco.generic.util.Assert.*;
 import static java.util.Collections.unmodifiableList;
-import static org.springframework.util.Assert.notNull;
 
 /**
  * A {@link com.graphaware.reco.generic.engine.TopLevelRecommendationEngine} {@link com.graphaware.reco.generic.engine.DelegatingRecommendationEngine}.

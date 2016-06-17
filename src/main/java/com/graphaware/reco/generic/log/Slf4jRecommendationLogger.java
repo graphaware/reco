@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 /**
- * A logger logging recommended items and their scores using {@link org.slf4j.Logger}.
+ * A logger logging recommended items and their scores using {@link Logger}.
  *
  * @param <OUT> type of the recommendations produced.
  * @param <IN>  type of the item recommendations are for / based on.

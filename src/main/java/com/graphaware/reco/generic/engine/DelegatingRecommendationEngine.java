@@ -27,7 +27,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.springframework.util.Assert.notNull;
+import static com.graphaware.reco.generic.util.Assert.*;
 
 /**
  * A {@link RecommendationEngine} that delegates to other {@link RecommendationEngine}s. Once all interested {@link RecommendationEngine}s

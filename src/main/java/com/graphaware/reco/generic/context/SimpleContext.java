@@ -21,8 +21,8 @@ import com.graphaware.reco.generic.stats.DefaultStatistics;
 import com.graphaware.reco.generic.stats.Statistics;
 
 import static com.graphaware.reco.generic.stats.Statistics.TOTAL_TIME;
-import static org.springframework.util.Assert.hasLength;
-import static org.springframework.util.Assert.notNull;
+import static com.graphaware.reco.generic.util.Assert.hasLength;
+import static com.graphaware.reco.generic.util.Assert.notNull;
 
 /**
  * The simplest possible context, allowing all recommendations.
